@@ -27,5 +27,29 @@ class ValorInsuficienteError(ValueError):
 
 
 def calcular_troco(total: Decimal, pago: Decimal) -> dict[Decimal, int]:
-    # Dica: pense em "quantas vezes cabe a maior nota?" e vá descendo a lista.
-    raise NotImplementedError
+    # Passo 1: só aceitamos Decimal (float tem erro de precisão: 0.1 + 0.2 != 0.3).
+    if not isinstance(total, Decimal) or not isinstance(pago, Decimal):
+        raise TypeError("total e pago devem ser Decimal")
+
+    # Passo 2: valores negativos não fazem sentido.
+    if total < 0 or pago < 0:
+        raise ValueError("Valores não podem ser negativos")
+
+    # Passo 3: o cliente precisa ter pago pelo menos o total.
+    if pago < total:
+        raise ValorInsuficienteError("Valor pago é menor que o total")
+
+    # Passo 4: arredonda o troco PARA BAIXO em múltiplos de 0,05.
+    # `//` é a divisão inteira: 9.98 // 0.05 = 199, e 199 * 0.05 = 9.95.
+    passo = Decimal("0.05")
+    restante = ((pago - total) // passo) * passo
+
+    # Passo 5: algoritmo guloso. Da maior para a menor denominação, vemos
+    # quantas vezes ela cabe no que sobrou e descontamos.
+    troco: dict[Decimal, int] = {}
+    for denominacao in DENOMINACOES:
+        quantidade, restante = divmod(restante, denominacao)
+        if quantidade > 0:  # só entram as denominações usadas
+            troco[denominacao] = int(quantidade)
+
+    return troco

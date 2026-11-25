@@ -29,18 +29,59 @@ CEP
 Rodar os testes:  pytest tests/test_validadores.py -v
 """
 
+import re
+
+
+def _digitos(texto: str) -> list[int]:
+    """Converte '529.982' em [5, 2, 9, 9, 8, 2] (só os dígitos)."""
+    return [int(c) for c in texto if c.isdigit()]
+
 
 def validar_cpf(cpf: str) -> bool:
-    raise NotImplementedError
+    # Aceita só "000.000.000-00" ou "00000000000" (nada de letras ou formatos estranhos).
+    if not re.fullmatch(r"[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}|[0-9]{11}", cpf):
+        return False
+    d = _digitos(cpf)
+    if len(set(d)) == 1:  # todos iguais (111.111.111-11) passam na conta, mas são inválidos
+        return False
+
+    for n_digitos, peso_inicial in ((9, 10), (10, 11)):
+        pesos = range(peso_inicial, 1, -1)  # 10..2 no 1º DV, 11..2 no 2º
+        soma = sum(digito * peso for digito, peso in zip(d[:n_digitos], pesos, strict=True))
+        dv = (soma * 10) % 11
+        if dv == 10:
+            dv = 0
+        if dv != d[n_digitos]:
+            return False
+    return True
 
 
 def validar_cnpj(cnpj: str) -> bool:
-    raise NotImplementedError
+    if not re.fullmatch(r"[0-9]{2}\.[0-9]{3}\.[0-9]{3}/[0-9]{4}-[0-9]{2}|[0-9]{14}", cnpj):
+        return False
+    d = _digitos(cnpj)
+    if len(set(d)) == 1:
+        return False
+
+    pesos_1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    pesos_2 = [6, *pesos_1]  # 6,5,4,3,2,9,8,7,6,5,4,3,2
+    for n_digitos, pesos in ((12, pesos_1), (13, pesos_2)):
+        soma = sum(digito * peso for digito, peso in zip(d[:n_digitos], pesos, strict=True))
+        resto = soma % 11
+        dv = 0 if resto < 2 else 11 - resto
+        if dv != d[n_digitos]:
+            return False
+    return True
 
 
 def validar_ean13(ean: str) -> bool:
-    raise NotImplementedError
+    if not re.fullmatch(r"[0-9]{13}", ean):
+        return False
+    d = _digitos(ean)
+    # índice 0 é a 1ª posição (ímpar, peso 1); índice 1 é a 2ª (par, peso 3)...
+    soma = sum(digito * (1 if i % 2 == 0 else 3) for i, digito in enumerate(d[:12]))
+    return (10 - soma % 10) % 10 == d[12]
 
 
 def validar_cep(cep: str) -> bool:
-    raise NotImplementedError
+    return re.fullmatch(r"[0-9]{5}-?[0-9]{3}", cep) is not None
