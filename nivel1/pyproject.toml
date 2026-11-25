@@ -1,0 +1,10 @@
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# Decimal("20") é proposital: dinheiro sempre criado a partir de string
+ignore = ["FURB157"]

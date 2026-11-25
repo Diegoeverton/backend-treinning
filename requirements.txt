@@ -1,0 +1,37 @@
+# =========================================================
+# Treino Backend — Logística e Frente de Loja
+# Uma venv compartilhada por todos os níveis (nivel1 ... nivel4)
+# Instalar:  pip install -r requirements.txt
+# Python 3.12+
+# =========================================================
+
+# ---------- API (Níveis 2, 3 e 4) ----------
+fastapi~=0.165.0             # framework da API
+uvicorn[standard]~=0.54.0    # servidor ASGI (uvicorn app.main:app --reload)
+pydantic~=2.14.4             # validação de entrada e saída
+pydantic-settings~=2.16.3    # configurações via variáveis de ambiente / .env
+python-dotenv~=1.2.4         # lê o arquivo .env
+python-multipart~=0.0.34     # formulário de login (OAuth2PasswordRequestForm)
+
+# ---------- Banco de dados ----------
+sqlalchemy~=2.1.9            # ORM
+alembic~=1.20.1              # migrations
+psycopg[binary]~=3.3.9       # driver PostgreSQL (SQLite já vem no Python)
+
+# ---------- Autenticação (exercício 2.5) ----------
+pyjwt~=2.15.1                # geração e validação de tokens JWT
+pwdlib[argon2]~=0.4.2        # hash de senha
+
+# ---------- Integração (Nível 4) ----------
+redis~=8.2.0                 # fila de eventos e cache (4.4 e 4.6)
+httpx~=0.28.1                # chamadas a APIs externas (CEP) e cliente de testes
+
+# ---------- Testes e qualidade (todos os níveis) ----------
+pytest~=9.2.0
+pytest-cov~=7.1.0            # cobertura: pytest --cov
+ruff~=0.17.6                 # lint e formatação: ruff check . / ruff format .
+
+# ---------- Cliente desktop (exercício 2.11) ----------
+# Pacote grande (~300 MB). Descomente só quando chegar no 2.11,
+# ou use Tkinter, que já vem com o Python.
+# pyside6~=6.12.0
